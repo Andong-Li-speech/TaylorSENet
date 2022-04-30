@@ -1,0 +1,123 @@
+# for loading and saving paths
+[path]
+data_type = "DNS-Challenge_3000h"
+is_checkpoint = true
+is_resume_reload = false
+checkpoint_load_path = "CheckpointPath"
+checkpoint_load_filename = ""
+loss_save_path = "Loss"
+model_best_path = "BestModel"
+logging_path = "Logger"
+
+
+[path.train]
+mix_file_path = "/media/liandong/CTS_TASLP_for_dns_3000h_dataset/train/mix"
+target_file_path = "/media/liandong/CTS_TASLP_for_dns_3000h_dataset/train/clean"
+
+[path.val]
+mix_file_path = "/media/liandong/CTS_TASLP_for_dns_3000h_dataset/dev/mix"
+target_file_path = "/media/liandong/CTS_TASLP_for_dns_3000h_dataset/dev/clean"
+
+
+[gpu]
+gpu_ids = [0]
+# signal settings before sending into the network
+[signal]
+sr = 16000
+is_chunk = true
+chunk_length = 8.0
+win_size = 0.02
+win_shift = 0.01
+fft_num = 320
+is_variance_norm = true
+is_compress = true
+
+
+# choosed loss function
+[loss_function]
+path = "utils.loss"
+alpha = 0.5
+l_type = "L2"
+[loss_function.stagewise]
+classname = "ComMagEuclideanLoss"
+
+
+# choosed optimizer
+[optimizer]
+name = "adam"
+lr = 2e-4
+beta1 = 0.9
+beta2 = 0.999
+l2 = 1e-7
+gradient_norm = 5.0
+epochs = 30
+halve_lr = true
+early_stop = true
+halve_freq = 2
+early_stop_freq = 3
+print_freq = 1
+metric_options = ["SISNR"]  # only one metric is supported in the current version, chioces: [NB-PESQ, ESTOI]
+
+# reproducibility settings
+[reproducibility]
+seed = 1234
+
+# Dataset
+[dataset]
+[dataset.train]
+json_path = "/media/liandong/CTS_TASLP_for_dns_3000h_dataset/Json/train"
+batch_size = 24
+is_shuffle = true
+
+[dataset.val]
+json_path = "/media/liandong/CTS_TASLP_for_dns_3000h_dataset/Json/dev"
+batch_size = 24
+is_shuffle = true
+
+[dataloader]
+[dataloader.train]
+num_workers = 6
+pin_memory = true
+drop_last = false
+shuffle = false
+
+[dataloader.val]
+num_workers = 6
+pin_memory = true
+drop_last = false
+shuffle = false
+
+# network configs
+[net]
+choice="TaylorSENet"
+path = "nets.TaylorSENet"
+classname = "TaylorSENet"
+
+[net.TaylorSENet.args]
+cin = 2
+k1 = [1, 3]
+k2 = [2, 3]
+c = 64
+kd1 = 5
+cd1 = 64
+d_feat = 256
+dilations = [1, 2, 5, 9]
+p = 2
+fft_num = 320
+order_num = 3
+intra_connect="cat"
+inter_connect="cat"
+norm_type="IN"
+is_causal=true
+is_u2=true
+is_param_share=false
+is_encoder_share=false
+
+
+[save]
+loss_filename = "DNS-Challenge_3000h_taylorsenet_loss.mat"
+best_model_filename = "DNS-Challenge_3000h_taylorsenet_model.pth"
+checkpoint_filename = "DNS-Challenge_3000h_taylorsenet_model.pth.tar"
+logger_filename = "DNS-Challenge_3000h_taylorsenet_logger.txt"
+#tensorboard_filename = "librispeech_taylorbeamformer_mic_linear_mid_target_timvdr_order0_param_nonshared_bf_embedding64_hidnode_64_u2_risqueezed_norm2d_BN_norm1d_BN_causal"
+
